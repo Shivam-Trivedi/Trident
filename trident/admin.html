@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trident Sports Club — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --neon: #7FFF00;
+  --dark-green: #00C800;
+  --black: #080808;
+  --dark: #0f0f0f;
+  --card: #161616;
+  --card2: #1e1e1e;
+  --border: rgba(127,255,0,0.15);
+  --text: #e8e8e8;
+  --muted: #888;
+  --red: #ff4444;
+  --amber: #ffb700;
+  --blue: #4499ff;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--black); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--black); } ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 2px; }
+
+/* LOGIN SCREEN */
+#loginScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--black);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.login-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%; max-width: 420px;
+  text-align: center;
+}
+
+.login-logo { font-size: 48px; margin-bottom: 8px; }
+.login-box h1 { font-family: 'Orbitron', sans-serif; font-size: 20px; color: var(--neon); margin-bottom: 4px; }
+.login-box p { color: var(--muted); font-size: 13px; margin-bottom: 32px; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
+
+.login-field { margin-bottom: 16px; text-align: left; }
+.login-field label { display: block; font-family: 'Rajdhani', sans-serif; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.login-field input {
+  width: 100%; background: var(--dark); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 15px;
+  font-family: 'Inter'; outline: none; transition: border-color 0.2s;
+}
+.login-field input:focus { border-color: var(--neon); }
+
+.login-btn {
+  width: 100%; background: var(--neon); color: var(--black); border: none;
+  padding: 14px; border-radius: 8px; font-family: 'Rajdhani', sans-serif;
+  font-size: 16px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; margin-top: 8px; transition: all 0.3s;
+}
+.login-btn:hover { background: transparent; color: var(--neon); box-shadow: 0 0 0 2px var(--neon); }
+.login-error { color: var(--red); font-size: 13px; margin-top: 10px; display: none; font-family: 'Rajdhani', sans-serif; }
+
+/* HEADER */
+header {
+  background: rgba(8,8,8,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+
+.header-left { display: flex; align-items: center; gap: 14px; }
+.header-left .logo-icon { font-size: 28px; }
+.header-left div h1 { font-family: 'Orbitron', sans-serif; font-size: 16px; color: var(--neon); }
+.header-left div p { font-family: 'Rajdhani', sans-serif; font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+
+.header-right { display: flex; align-items: center; gap: 12px; }
+.logout-btn {
+  background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3);
+  color: #ff6666; padding: 8px 18px; border-radius: 6px; cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s;
+}
+.logout-btn:hover { background: rgba(255,68,68,0.2); }
+
+.back-site-btn {
+  background: rgba(127,255,0,0.1); border: 1px solid var(--border);
+  color: var(--neon); padding: 8px 18px; border-radius: 6px; cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s;
+  text-decoration: none; display: inline-block;
+}
+.back-site-btn:hover { background: rgba(127,255,0,0.2); }
+
+/* MAIN LAYOUT */
+.main-wrap { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+
+.stat-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 20px 24px; position: relative; overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(127,255,0,0.08); }
+.stat-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon), transparent);
+}
+.stat-card .stat-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+.stat-card .stat-num { font-family: 'Orbitron', sans-serif; font-size: 32px; font-weight: 900; color: var(--neon); }
+.stat-card .stat-label { font-family: 'Rajdhani', sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+/* CONTROLS */
+.controls-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+}
+
+.controls-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.search-input {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 16px; color: #fff; font-size: 14px; font-family: 'Inter';
+  outline: none; transition: border-color 0.2s; width: 240px;
+}
+.search-input:focus { border-color: var(--neon); }
+
+.filter-select {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 14px; color: #fff; font-size: 13px; font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.5px; outline: none; cursor: pointer;
+}
+
+.export-btn {
+  background: rgba(127,255,0,0.1); border: 1px solid var(--border);
+  color: var(--neon); padding: 10px 20px; border-radius: 8px; cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s;
+}
+.export-btn:hover { background: var(--neon); color: var(--black); }
+
+.clear-btn {
+  background: rgba(255,68,68,0.08); border: 1px solid rgba(255,68,68,0.2);
+  color: #ff6666; padding: 10px 20px; border-radius: 8px; cursor: pointer;
+  font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s;
+}
+.clear-btn:hover { background: rgba(255,68,68,0.15); }
+
+/* TABLE */
+.table-wrap {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.table-header h2 { font-family: 'Orbitron', sans-serif; font-size: 16px; color: #fff; }
+.table-header span { font-family: 'Rajdhani', sans-serif; font-size: 13px; color: var(--muted); }
+
+.table-container { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: rgba(127,255,0,0.04); border-bottom: 1px solid var(--border); }
+th {
+  padding: 14px 16px; text-align: left;
+  font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--neon);
+  white-space: nowrap;
+}
+
+tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.2s;
+}
+tbody tr:hover { background: rgba(127,255,0,0.03); }
+tbody tr:last-child { border-bottom: none; }
+
+td {
+  padding: 14px 16px; font-size: 14px; color: var(--text);
+  vertical-align: middle;
+}
+
+.td-name { font-weight: 600; color: #fff; }
+.td-mobile { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--neon); }
+.td-age { text-align: center; }
+
+.sport-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(127,255,0,0.08); border: 1px solid rgba(127,255,0,0.2);
+  color: var(--neon); padding: 4px 10px; border-radius: 5px;
+  font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600;
+  white-space: nowrap;
+}
+
+.type-badge {
+  display: inline-block; padding: 4px 10px; border-radius: 5px;
+  font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap;
+}
+.type-coaching { background: rgba(68,153,255,0.12); color: #4499ff; border: 1px solid rgba(68,153,255,0.25); }
+.type-slot     { background: rgba(255,183,0,0.12); color: #ffb700; border: 1px solid rgba(255,183,0,0.25); }
+
+.status-badge {
+  display: inline-block; padding: 4px 12px; border-radius: 20px;
+  font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer;
+}
+.status-Pending  { background: rgba(255,183,0,0.12); color: #ffb700; border: 1px solid rgba(255,183,0,0.3); }
+.status-Contacted { background: rgba(68,153,255,0.12); color: #4499ff; border: 1px solid rgba(68,153,255,0.3); }
+.status-Confirmed { background: rgba(127,255,0,0.1); color: var(--neon); border: 1px solid rgba(127,255,0,0.25); }
+.status-Cancelled { background: rgba(255,68,68,0.1); color: #ff6666; border: 1px solid rgba(255,68,68,0.25); }
+
+.action-btn {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 13px;
+  transition: all 0.2s; margin-right: 4px;
+}
+.action-btn:hover { border-color: var(--neon); color: var(--neon); }
+.action-del { border-color: rgba(255,68,68,0.2); }
+.action-del:hover { border-color: var(--red); color: var(--red); }
+.action-wa { border-color: rgba(37,211,102,0.2); color: #25d366; }
+.action-wa:hover { background: rgba(37,211,102,0.1); border-color: #25d366; }
+
+/* EMPTY STATE */
+.empty-state {
+  padding: 80px 20px; text-align: center;
+}
+.empty-state .empty-icon { font-size: 64px; display: block; margin-bottom: 16px; opacity: 0.4; }
+.empty-state h3 { font-family: 'Orbitron', sans-serif; font-size: 18px; color: var(--muted); margin-bottom: 8px; }
+.empty-state p { color: var(--muted); font-size: 14px; opacity: 0.7; }
+
+/* DETAIL MODAL */
+.detail-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+  z-index: 9000; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.detail-overlay.open { display: flex; }
+.detail-modal {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  width: 100%; max-width: 500px; padding: 32px;
+}
+.detail-modal h2 { font-family: 'Orbitron', sans-serif; font-size: 18px; color: var(--neon); margin-bottom: 24px; }
+.detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.detail-row:last-of-type { border-bottom: none; }
+.detail-row label { font-family: 'Rajdhani', sans-serif; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.detail-row span { font-size: 14px; color: #fff; text-align: right; max-width: 60%; }
+.detail-actions { display: flex; gap: 10px; margin-top: 24px; }
+.detail-actions button { flex: 1; padding: 12px; border-radius: 8px; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+.btn-close-detail { background: none; border: 1px solid var(--border); color: var(--muted); }
+.btn-close-detail:hover { border-color: var(--neon); color: var(--neon); }
+.btn-wa-detail { background: #25d366; border: none; color: #fff; }
+.btn-wa-detail:hover { opacity: 0.85; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 99999;
+  background: var(--card); border: 1px solid var(--neon); border-radius: 10px;
+  padding: 14px 22px; font-family: 'Rajdhani', sans-serif; font-size: 15px;
+  color: var(--neon); box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  animation: slideIn 0.3s ease; display: none;
+}
+@keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .main-wrap { padding: 20px 16px; }
+  header { padding: 0 16px; }
+  .controls-bar { flex-direction: column; align-items: stretch; }
+  .search-input { width: 100%; }
+  th, td { padding: 10px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🏆</div>
+    <h1>Trident Sports Club</h1>
+    <p>ADMIN DASHBOARD — SECURE LOGIN</p>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="Enter username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">🔐 Login</button>
+    <div class="login-error" id="loginError">❌ Invalid username or password</div>
+    <p style="margin-top:20px;font-size:12px;color:rgba(127,255,0,0.4);font-family:'Rajdhani',sans-serif;letter-spacing:1px;">Default: admin / trident2025</p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <span class="logo-icon">⚡</span>
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p>TRIDENT SPORTS CLUB</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <a class="back-site-btn" href="../index.html">← Back to Website</a>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- STATS -->
+  <div class="stats-grid" id="statsGrid"></div>
+
+  <!-- CONTROLS -->
+  <div class="controls-bar">
+    <div class="controls-left">
+      <input class="search-input" id="searchInput" type="text" placeholder="🔍  Search name, mobile, sport..." oninput="renderTable()">
+      <select class="filter-select" id="filterSport" onchange="renderTable()">
+        <option value="">All Sports</option>
+        <option>Skating</option>
+        <option>Cricket</option>
+        <option>Volleyball</option>
+        <option>Football</option>
+        <option>Nets Practice</option>
+      </select>
+      <select class="filter-select" id="filterType" onchange="renderTable()">
+        <option value="">All Types</option>
+        <option>Monthly Coaching</option>
+        <option>Single Slot</option>
+      </select>
+      <select class="filter-select" id="filterStatus" onchange="renderTable()">
+        <option value="">All Status</option>
+        <option>Pending</option>
+        <option>Contacted</option>
+        <option>Confirmed</option>
+        <option>Cancelled</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="export-btn" onclick="exportCSV()">📥 Export CSV</button>
+      <button class="clear-btn" onclick="clearAll()">🗑 Clear All</button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <h2>All Registrations</h2>
+      <span id="tableCount">0 records</span>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Mobile</th>
+            <th>Email</th>
+            <th>Sport</th>
+            <th>Type</th>
+            <th>Date / Time</th>
+            <th>Registered At</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty-state" style="display:none;">
+        <span class="empty-icon">📋</span>
+        <h3>No Registrations Yet</h3>
+        <p>Bookings from the website will appear here automatically.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-modal">
+    <h2>📋 Registration Details</h2>
+    <div id="detailContent"></div>
+    <div class="detail-actions">
+      <button class="btn-close-detail" onclick="closeDetail()">Close</button>
+      <button class="btn-wa-detail" id="detailWaBtn">📲 WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+var ADMIN_CREDS = { username: "admin", password: "trident2025" };
+function saveRegistrationLocal(r){try{var e=JSON.parse(localStorage.getItem("trident_registrations")||"[]");e.push(r);localStorage.setItem("trident_registrations",JSON.stringify(e))}catch(ex){}}
+function getRegistrationsLocal(){try{return JSON.parse(localStorage.getItem("trident_registrations")||"[]")}catch(e){return[]}}
+</script>
+<script>
+// ============ AUTH ============
+var ADMIN_USER = 'admin';
+var ADMIN_PASS = 'trident2025';
+var isLoggedIn = false;
+
+function doLogin() {
+  var u = document.getElementById('loginUser').value.trim();
+  var p = document.getElementById('loginPass').value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    isLoggedIn = true;
+    document.getElementById('loginScreen').style.display = 'none';
+    loadDashboard();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginPass').value = '';
+  }
+}
+
+function doLogout() {
+  isLoggedIn = false;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ============ DATA ============
+function getRegs() {
+  try { return JSON.parse(localStorage.getItem('trident_registrations') || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveRegs(regs) {
+  localStorage.setItem('trident_registrations', JSON.stringify(regs));
+}
+
+// ============ STATS ============
+function renderStats() {
+  var regs = getRegs();
+  var total = regs.length;
+  var pending = regs.filter(function(r){ return r.status === 'Pending'; }).length;
+  var confirmed = regs.filter(function(r){ return r.status === 'Confirmed'; }).length;
+  var coaching = regs.filter(function(r){ return r.bookingType === 'coaching'; }).length;
+  var slots = regs.filter(function(r){ return r.bookingType === 'slot'; }).length;
+
+  // Sport counts
+  var sportCounts = {};
+  regs.forEach(function(r) {
+    sportCounts[r.sport] = (sportCounts[r.sport] || 0) + 1;
+  });
+  var topSport = Object.keys(sportCounts).reduce(function(a,b){ return (sportCounts[a]||0) > (sportCounts[b]||0) ? a : b; }, '-') || '-';
+
+  var grid = document.getElementById('statsGrid');
+  grid.innerHTML = [
+    { icon: '📋', num: total,      label: 'Total Registrations' },
+    { icon: '⏳', num: pending,    label: 'Pending Follow-up' },
+    { icon: '✅', num: confirmed,  label: 'Confirmed' },
+    { icon: '🎓', num: coaching,   label: 'Monthly Coaching' },
+    { icon: '📅', num: slots,      label: 'Slot Bookings' },
+    { icon: '🏆', num: topSport,   label: 'Most Popular Sport' },
+  ].map(function(s) {
+    return '<div class="stat-card"><span class="stat-icon">' + s.icon + '</span>' +
+      '<div class="stat-num">' + s.num + '</div>' +
+      '<div class="stat-label">' + s.label + '</div></div>';
+  }).join('');
+}
+
+// ============ TABLE ============
+var sportIcons = { Skating: '⛸️', Cricket: '🏏', Volleyball: '🏐', Football: '⚽', 'Nets Practice': '🏑' };
+
+function renderTable() {
+  var regs = getRegs();
+  var search = document.getElementById('searchInput').value.toLowerCase();
+  var fSport  = document.getElementById('filterSport').value;
+  var fType   = document.getElementById('filterType').value;
+  var fStatus = document.getElementById('filterStatus').value;
+
+  var filtered = regs.filter(function(r) {
+    var matchSearch = !search ||
+      (r.name||'').toLowerCase().includes(search) ||
+      (r.mobile||'').includes(search) ||
+      (r.sport||'').toLowerCase().includes(search) ||
+      (r.email||'').toLowerCase().includes(search);
+    var matchSport  = !fSport  || r.sport === fSport;
+    var matchType   = !fType   || (fType === 'Monthly Coaching' ? r.bookingType === 'coaching' : r.bookingType === 'slot');
+    var matchStatus = !fStatus || r.status === fStatus;
+    return matchSearch && matchSport && matchType && matchStatus;
+  });
+
+  // Sort newest first
+  filtered.sort(function(a,b){ return b.id - a.id; });
+
+  document.getElementById('tableCount').textContent = filtered.length + ' record' + (filtered.length !== 1 ? 's' : '');
+
+  var tbody = document.getElementById('tableBody');
+  var empty = document.getElementById('emptyState');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(function(r, i) {
+    var icon = sportIcons[r.sport] || '🏅';
+    var typeClass = r.bookingType === 'coaching' ? 'type-coaching' : 'type-slot';
+    var typeText  = r.bookingType === 'coaching' ? 'Monthly' : 'Slot';
+    var slotInfo  = (r.date && r.timeSlot) ? (r.date + '<br><span style="color:var(--muted);font-size:12px;">' + r.timeSlot + '</span>') : '—';
+    var statuses  = ['Pending','Contacted','Confirmed','Cancelled'];
+    var statusOptions = statuses.map(function(st) {
+      return '<option value="' + st + '"' + (r.status === st ? ' selected' : '') + '>' + st + '</option>';
+    }).join('');
+
+    return '<tr>' +
+      '<td style="color:var(--muted);font-size:13px;">' + (i+1) + '</td>' +
+      '<td class="td-name">' + (r.name||'—') + '</td>' +
+      '<td class="td-age">' + (r.age||'—') + '</td>' +
+      '<td class="td-mobile">' + (r.mobile||'—') + '</td>' +
+      '<td style="color:var(--muted);font-size:13px;">' + (r.email||'—') + '</td>' +
+      '<td><span class="sport-badge">' + icon + ' ' + (r.sport||'—') + '</span></td>' +
+      '<td><span class="type-badge ' + typeClass + '">' + typeText + '</span></td>' +
+      '<td style="font-size:13px;">' + slotInfo + '</td>' +
+      '<td style="color:var(--muted);font-size:12px;white-space:nowrap;">' + (r.submittedAt||'—') + '</td>' +
+      '<td><select class="filter-select" style="padding:5px 8px;font-size:12px;" onchange="updateStatus(' + r.id + ',this.value)">' + statusOptions + '</select></td>' +
+      '<td style="white-space:nowrap;">' +
+      '<button class="action-btn" onclick="viewDetail(' + r.id + ')">👁</button>' +
+      '<button class="action-btn action-wa" onclick="callWhatsApp(' + r.id + ')">📲</button>' +
+      '<button class="action-btn action-del" onclick="deleteReg(' + r.id + ')">🗑</button>' +
+      '</td></tr>';
+  }).join('');
+}
+
+function updateStatus(id, newStatus) {
+  var regs = getRegs();
+  regs = regs.map(function(r) { if (r.id === id) r.status = newStatus; return r; });
+  saveRegs(regs);
+  renderStats();
+  showToast('✅ Status updated to ' + newStatus);
+}
+
+function deleteReg(id) {
+  if (!confirm('Delete this registration?')) return;
+  var regs = getRegs().filter(function(r) { return r.id !== id; });
+  saveRegs(regs);
+  renderStats();
+  renderTable();
+  showToast('🗑 Registration deleted');
+}
+
+function clearAll() {
+  if (!confirm('Delete ALL registrations? This cannot be undone.')) return;
+  localStorage.removeItem('trident_registrations');
+  renderStats();
+  renderTable();
+  showToast('🗑 All registrations cleared');
+}
+
+// ============ DETAIL MODAL ============
+function viewDetail(id) {
+  var regs = getRegs();
+  var r = regs.find(function(x){ return x.id === id; });
+  if (!r) return;
+
+  var fields = [
+    ['Name',         r.name],
+    ['Age',          r.age],
+    ['Mobile',       r.mobile],
+    ['Email',        r.email || 'Not provided'],
+    ['Sport',        (sportIcons[r.sport]||'🏅') + ' ' + r.sport],
+    ['Booking Type', r.bookingType === 'coaching' ? '🎓 Monthly Coaching' : '📅 Single Slot'],
+    ['Date',         r.date || '—'],
+    ['Time Slot',    r.timeSlot || '—'],
+    ['Submitted At', r.submittedAt],
+    ['Status',       r.status],
+  ];
+
+  document.getElementById('detailContent').innerHTML = fields.map(function(f) {
+    return '<div class="detail-row"><label>' + f[0] + '</label><span>' + f[1] + '</span></div>';
+  }).join('');
+
+  document.getElementById('detailWaBtn').onclick = function() { callWhatsApp(id); };
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+}
+
+document.getElementById('detailOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeDetail();
+});
+
+// ============ WHATSAPP ============
+function callWhatsApp(id) {
+  var r = getRegs().find(function(x){ return x.id === id; });
+  if (!r) return;
+  var msg = encodeURIComponent(
+    'Hello ' + r.name + ',\n\n' +
+    'This is Trident Sports Club, Jamnagar.\n\n' +
+    'We received your booking request for *' + r.sport + '* (' + (r.bookingType === 'coaching' ? 'Monthly Coaching' : 'Single Slot') + ').\n\n' +
+    'We would like to confirm your session. Please let us know your convenient time.\n\n' +
+    'Thank you!\n— Trident Sports Club Team\n📍 Haridham Society-2, Ranjitsagar Road, Jamnagar'
+  );
+  window.open('https://wa.me/91' + r.mobile + '?text=' + msg, '_blank');
+  // Update status
+  updateStatus(id, 'Contacted');
+}
+
+// ============ EXPORT CSV ============
+function exportCSV() {
+  var regs = getRegs();
+  if (regs.length === 0) { showToast('No data to export'); return; }
+  var headers = ['#','Name','Age','Mobile','Email','Sport','Booking Type','Date','Time Slot','Registered At','Status'];
+  var rows = regs.map(function(r, i) {
+    return [
+      i+1, r.name, r.age, r.mobile, r.email||'', r.sport,
+      r.bookingType === 'coaching' ? 'Monthly Coaching' : 'Single Slot',
+      r.date||'', r.timeSlot||'', r.submittedAt, r.status
+    ].map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',');
+  });
+  var csv = [headers.join(',')].concat(rows).join('\n');
+  var blob = new Blob([csv], { type: 'text/csv' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'trident_registrations_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('📥 CSV exported!');
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.style.display = 'none'; }, 3000);
+}
+
+// ============ LOAD ============
+function loadDashboard() {
+  renderStats();
+  renderTable();
+  // Auto-refresh every 10 seconds to pick up new bookings
+  setInterval(function() {
+    renderStats();
+    renderTable();
+  }, 10000);
+}
+
+// Add some demo data if empty (remove this in production)
+function addDemoData() {
+  var regs = getRegs();
+  if (regs.length === 0) {
+    var demo = [
+      { id: Date.now()-3000, name: 'Rahul Sharma', age: '14', mobile: '9876543210', email: 'rahul@email.com', sport: 'Cricket', bookingType: 'coaching', date: '', timeSlot: '', type: 'Monthly Coaching', submittedAt: new Date().toLocaleString('en-IN'), status: 'Pending' },
+      { id: Date.now()-2000, name: 'Priya Patel',  age: '10', mobile: '9988776655', email: '', sport: 'Skating', bookingType: 'slot', date: '20 March 2026', timeSlot: '5:00 PM', type: 'Slot: 20 March 2026 at 5:00 PM', submittedAt: new Date().toLocaleString('en-IN'), status: 'Contacted' },
+      { id: Date.now()-1000, name: 'Arjun Mehta',  age: '16', mobile: '9123456789', email: 'arjun@gmail.com', sport: 'Football', bookingType: 'coaching', date: '', timeSlot: '', type: 'Monthly Coaching', submittedAt: new Date().toLocaleString('en-IN'), status: 'Confirmed' },
+    ];
+    saveRegs(demo);
+  }
+}
+addDemoData();
+</script>
+</body>
+</html>
