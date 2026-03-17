@@ -1,4 +1,4 @@
-const API_URL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE";
+const API_URL = "https://docs.google.com/spreadsheets/d/1Tzw5Xo0oTpvBaxdcKi2jSuSYjUEZrQYOdACXlEOIC-I/edit?gid=0#gid=0";
 
 document.getElementById("bookingForm")
 .addEventListener("submit", async function(e){
